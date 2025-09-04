@@ -28,6 +28,7 @@ x-n8n: &service-n8n
     - N8N_ENCRYPTION_KEY
     - N8N_USER_MANAGEMENT_JWT_SECRET
     - WEBHOOK_URL=${N8N_HOSTNAME:+https://}${N8N_HOSTNAME:-http://localhost:5678}
+    - OLLAMA_HOST=192.168.10.201:11434
 
 x-ollama: &service-ollama
   image: ollama/ollama:latest
@@ -40,14 +41,17 @@ x-ollama: &service-ollama
     - OLLAMA_FLASH_ATTENTION=1
     - OLLAMA_KV_CACHE_TYPE=q8_0
     - OLLAMA_MAX_LOADED_MODELS=2
+    - OLLAMA_Models_LOCAL_PATH=${OLLAMA_Models_LOCAL_PATH}
   volumes:
     - ollama_storage:/root/.ollama
+    - "${OLLAMA_Models_LOCAL_PATH}:/mnt/shared"
 
 x-init-ollama: &init-ollama
   image: ollama/ollama:latest
   container_name: ollama-pull-llama
   volumes:
     - ollama_storage:/root/.ollama
+    - "${OLLAMA_Models_LOCAL_PATH}:/mnt/shared"
   entrypoint: /bin/sh
   command:
     - "-c"
@@ -61,13 +65,13 @@ services:
     expose:
       - 3001/tcp
     environment:
-        - PORT=3001
-        - FLOWISE_USERNAME=${FLOWISE_USERNAME}
-        - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
+      - PORT=3001
+      - FLOWISE_USERNAME=${FLOWISE_USERNAME}
+      - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-        - ~/.flowise:/root/.flowise
+      - ~/.flowise:/root/.flowise
     entrypoint: /bin/sh -c "sleep 3; flowise start"
 
   open-webui:
@@ -101,6 +105,7 @@ services:
       - n8n_storage:/home/node/.n8n
       - ./n8n/backup:/backup
       - ./shared:/data/shared
+      - "${N8N_Local_path}:/mnt/data/shared"
     depends_on:
       n8n-import:
         condition: service_completed_successfully
@@ -118,16 +123,16 @@ services:
   neo4j:
     image: neo4j:latest
     volumes:
-        - ./neo4j/logs:/logs
-        - ./neo4j/config:/config
-        - ./neo4j/data:/data
-        - ./neo4j/plugins:/plugins
+      - ./neo4j/logs:/logs
+      - ./neo4j/config:/config
+      - ./neo4j/data:/data
+      - ./neo4j/plugins:/plugins
     expose:
       - 7473/tcp
       - 7474/tcp
       - 7687/tcp
     environment:
-        - NEO4J_AUTH=${NEO4J_AUTH:-"neo4j/your_password"}
+      - NEO4J_AUTH=${NEO4J_AUTH:-"neo4j/your_password"}
     restart: always
 
   caddy:
@@ -180,7 +185,7 @@ services:
       clickhouse:
         condition: service_healthy
     expose:
-     - 3030/tcp
+      - 3030/tcp
     environment: &langfuse-worker-env
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
       SALT: ${LANGFUSE_SALT}
@@ -355,44 +360,44 @@ services:
         max-size: "1m"
         max-file: "1"
 
-  ollama-cpu:
-    profiles: ["cpu"]
-    <<: *service-ollama
+  # ollama-cpu:
+  #   profiles: ["cpu"]
+  #   <<: *service-ollama
 
-  ollama-gpu:
-    profiles: ["gpu-nvidia"]
-    <<: *service-ollama
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+  # ollama-gpu:
+  #   profiles: ["gpu-nvidia"]
+  #   <<: *service-ollama
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
 
-  ollama-gpu-amd:
-    profiles: ["gpu-amd"]
-    <<: *service-ollama
-    image: ollama/ollama:rocm
-    devices:
-      - "/dev/kfd"
-      - "/dev/dri"
+  # ollama-gpu-amd:
+  #   profiles: ["gpu-amd"]
+  #   <<: *service-ollama
+  #   image: ollama/ollama:rocm
+  #   devices:
+  #     - "/dev/kfd"
+  #     - "/dev/dri"
 
-  ollama-pull-llama-cpu:
-    profiles: ["cpu"]
-    <<: *init-ollama
-    depends_on:
-      - ollama-cpu
+  # ollama-pull-llama-cpu:
+  #   profiles: ["cpu"]
+  #   <<: *init-ollama
+  #   depends_on:
+  #     - ollama-cpu
 
-  ollama-pull-llama-gpu:
-    profiles: ["gpu-nvidia"]
-    <<: *init-ollama
-    depends_on:
-      - ollama-gpu
+  # ollama-pull-llama-gpu:
+  #   profiles: ["gpu-nvidia"]
+  #   <<: *init-ollama
+  #   depends_on:
+  #     - ollama-gpu
 
-  ollama-pull-llama-gpu-amd:
-    profiles: [gpu-amd]
-    <<: *init-ollama
-    image: ollama/ollama:rocm
-    depends_on:
-     - ollama-gpu-amd
+  # ollama-pull-llama-gpu-amd:
+  #   profiles: [gpu-amd]
+  #   <<: *init-ollama
+  #   image: ollama/ollama:rocm
+  #   depends_on:
+  #     - ollama-gpu-amd
