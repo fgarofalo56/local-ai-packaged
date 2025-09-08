@@ -162,8 +162,7 @@ services:
       - LANGFUSE_HOSTNAME=${LANGFUSE_HOSTNAME:-":8007"}
       - NEO4J_HOSTNAME=${NEO4J_HOSTNAME:-":8008"}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-internal}
-    cap_drop:
-      - ALL
+# # # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
     cap_add:
       - NET_BIND_SERVICE
     logging:
@@ -319,8 +318,7 @@ services:
       - 6379/tcp
     volumes:
       - valkey-data:/data
-    cap_drop:
-      - ALL
+# # # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
     cap_add:
       - SETGID
       - SETUID
@@ -328,8 +326,9 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "1m"
-        max-file: "1"
+        max-size: "10m"
+        max-file: "2"
+        compress: "true"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 3s
@@ -348,8 +347,7 @@ services:
       - SEARXNG_BASE_URL=https://${SEARXNG_HOSTNAME:-localhost}/
       - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
       - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
-    cap_drop:
-      - ALL
+# # # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
     cap_add:
       - CHOWN
       - SETGID
