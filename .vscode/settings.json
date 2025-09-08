@@ -5,5 +5,8 @@
     "python-envs.pythonProjects": [],
     "typescript.experimental.useTsgo": true,
     "memory-view.showMemoryPanel": false,
-    "markdown.enableMetadataDateReminder": false
+    "markdown.enableMetadataDateReminder": false,
+    "python.analysis.extraPaths": [
+        "c:\\Users\\frgarofa\\.vscode\\extensions\\ms-security.ms-sentinel-0.1.0\\python"
+    ]
 }
