@@ -162,14 +162,15 @@ services:
       - LANGFUSE_HOSTNAME=${LANGFUSE_HOSTNAME:-":8007"}
       - NEO4J_HOSTNAME=${NEO4J_HOSTNAME:-":8008"}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-internal}
-# # # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
+# # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
     cap_add:
       - NET_BIND_SERVICE
     logging:
       driver: "json-file"
       options:
-        max-size: "1m"
-        max-file: "1"
+        max-size: "10m"
+        max-file: "2"
+        compress: "true"
 
   langfuse-worker:
     image: langfuse/langfuse-worker:3
@@ -318,7 +319,7 @@ services:
       - 6379/tcp
     volumes:
       - valkey-data:/data
-# # # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
+# # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
     cap_add:
       - SETGID
       - SETUID
@@ -347,7 +348,7 @@ services:
       - SEARXNG_BASE_URL=https://${SEARXNG_HOSTNAME:-localhost}/
       - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
       - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
-# # # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
+# # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # temporarily disabled first run
     cap_add:
       - CHOWN
       - SETGID
@@ -355,8 +356,9 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "1m"
-        max-file: "1"
+        max-size: "10m"
+        max-file: "2"
+        compress: "true"
 
   # ollama-cpu:
   #   profiles: ["cpu"]
@@ -387,15 +389,15 @@ services:
   #   depends_on:
   #     - ollama-cpu
 
-  # ollama-pull-llama-gpu:
+  # olloma-pull-llama-gpu:
   #   profiles: ["gpu-nvidia"]
   #   <<: *init-ollama
   #   depends_on:
   #     - ollama-gpu
 
-  # ollama-pull-llama-gpu-amd:
+  # olloma-pull-llama-gpu-amd:
   #   profiles: [gpu-amd]
   #   <<: *init-ollama
-  #   image: ollama/ollama:rocm
+  #   image: ollama/olloma:rocm
   #   depends_on:
   #     - ollama-gpu-amd
