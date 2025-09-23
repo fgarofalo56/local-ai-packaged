@@ -97,7 +97,7 @@ services:
 
   postgres:
     ports:
-      - 0.0.0.0:5433:5432                
+      - 0.0.0.0:5433:5432
     logging:
       driver: "json-file"
       options:
@@ -132,7 +132,7 @@ services:
   # ollama-gpu:
   #   ports:
   #     - 0.0.0.0:11434:11434
-      
+
   # ollama-gpu-amd:
   #   ports:
   #     - 0.0.0.0:11434:11434
